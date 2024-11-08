@@ -3,7 +3,7 @@
 from typing import List
 import re
 import logging
-import os as environ
+import os
 import mysql.connector
 
 
@@ -49,14 +49,35 @@ def get_logger() -> logging.Logger:
 
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
-    """ Returns a connector to a MySQL database """
-    username = environ.get("PERSONAL_DATA_DB_USERNAME", "root")
-    password = environ.get("PERSONAL_DATA_DB_PASSWORD", "")
-    host = environ.get("PERSONAL_DATA_DB_HOST", "localhost")
-    db_name = environ.get("PERSONAL_DATA_DB_NAME")
+    """ Connection to MySQL environment """
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    db_name = os.getenv('PERSONAL_DATA_DB_NAME')
 
-    cnx = mysql.connector.connection.MySQLConnection(user=username,
-                                                     password=password,
-                                                     host=host,
-                                                     database=db_name)
-    return cnx
+    try:
+        connection = mysql.connector.connect(
+            user=username,
+            password=password,
+            host=host,
+            database=db_name
+        )
+        return connection
+    except mysql.connector.Error as err:
+        raise err
+
+
+def main():
+    '''function called main that will obtain a database connection using get_db'''
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    logger = get_logger()
+    for row in cursor:
+        logger.info(f"name={row[0]}; phone={row[1]}; email={row[2]}; ssn={row[3]}; password={row[4]}; ip={row[5]}; last_login={row[6]};")
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()

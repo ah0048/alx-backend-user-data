@@ -77,7 +77,7 @@ def main():
     cursor.execute("SELECT * FROM users;")
     logger = get_logger()
     for row in cursor:
-        logger.info(f"name={row[0]}; phone={row[1]}; email={row[2]}; \
+        logger.info(f"name={row[0]}; phone={row[1]}; email={row[2]};\
                     ssn={row[3]}; password={row[4]}; ip={row[5]}; \
                         last_login={row[6]};")
     cursor.close()

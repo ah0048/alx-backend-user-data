@@ -23,6 +23,7 @@ if os.getenv("AUTH_TYPE") == 'basic_auth':
 if os.getenv("AUTH_TYPE") == "session_auth":
     auth = SessionAuth()
 
+
 @app.before_request
 def filter_requests(request=request):
     '''filter requests'''

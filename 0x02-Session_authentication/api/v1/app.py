@@ -35,16 +35,13 @@ def filter_requests(request=request):
         '/api/v1/forbidden/',
         '/api/v1/auth_session/login/'
         ]
-    if not auth.require_auth(request.path, excluded_paths):
-        return
-    cookie = auth.session_cookie(request)
-    if auth.authorization_header(request) is None and cookie is None:
-        abort(401)
-    if auth.authorization_header(request) is None:
-        abort(401)
-    if auth.current_user(request) is None:
-        abort(403)
-    setattr(request, "current_user", auth.current_user(request))
+    if auth.require_auth(request.path, excluded_paths):
+        setattr(request, "current_user", auth.current_user(request))
+        cookie = auth.session_cookie(request)
+        if auth.authorization_header(request) is None and cookie is None:
+            abort(401)
+        if auth.current_user(request) is None:
+            abort(403)
 
 
 @app.errorhandler(401)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Main file
 """
-from flask import Flask, jsonify, request, abort, redirect
+from flask import Flask, jsonify, request, abort, redirect, url_for
 from auth import Auth
 
 
@@ -10,7 +10,7 @@ AUTH = Auth()
 
 
 @app.route('/', methods=['GET'], strict_slashes=False)
-def hello() -> str:
+def home() -> str:
     """GET /
     Return:
       - a welcome message
@@ -51,23 +51,18 @@ def login() -> str:
     abort(401)
 
 
-@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
-def logout() -> str:
-    """DELETE /sessions
-    Return:
-        - A redirect if successful
+@app.route("/sessions", methods=["DELETE"])
+def logout():
+    """ Logout endpoint
+        Return:
+            - redirect to home page
     """
-    # Get the session ID from the "session_id" cookie in the request
     session_id = request.cookies.get("session_id")
-    # Retrieve the user associated with the session ID
     user = AUTH.get_user_from_session_id(session_id)
-    # If no user is found, abort the request with a 403 Forbidden error
-    if user is None:
+    if not user:
         abort(403)
-    # Destroy the session associated with the user
     AUTH.destroy_session(user.id)
-    # Redirect to the home route
-    return redirect("/")
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
